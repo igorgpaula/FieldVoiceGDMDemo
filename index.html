@@ -32269,16 +32269,11 @@ async function carregarDados() {
 }
 
 function resetarExperimento() {
-  if (!confirm('⚠️ Apagar todos os dados?')) return;
+  if (!confirm('Reset demo scores and reload the embedded dataset?')) return;
   try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
   removerIndexedDB().catch(() => {});
   const prefs = pluginPreferencias();
   if (prefs?.remove) prefs.remove({ key: STORAGE_KEY }).catch(() => {});
-  dados = [];
-  current = 0;
-  colunaAtual = 1;
-  nomeCSV = '';
-  paginaAtual = 1;
   modoDescricao = false;
   NOTA_MIN = DEFAULT_NOTA_MIN;
   NOTA_MAX = DEFAULT_NOTA_MAX;
@@ -32286,10 +32281,18 @@ function resetarExperimento() {
   atualizarUIFaixaNotas();
   limparDedupVoz();
   VozEngine.parar();
-  document.getElementById('fileLabel').textContent = 'plot_id · genotype · check';
   document.getElementById('notaDigitada').value = '';
-  atualizarTela();
-  document.getElementById('debug').textContent = '🔄 Reset complete!';
+  const csvDemo = document.getElementById('posterCsv')?.textContent || '';
+  if (!importarCSVTexto(csvDemo.trim(), 'Template FieldVoice.csv', { demo: true })) {
+    dados = [];
+    current = 0;
+    colunaAtual = 1;
+    nomeCSV = '';
+    paginaAtual = 1;
+    document.getElementById('fileLabel').textContent = 'plot_id · genotype · check';
+    atualizarTela();
+    document.getElementById('debug').textContent = 'Reset complete. Demo dataset was not found.';
+  }
   garantirFocoDigitacao();
 }
 
